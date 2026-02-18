@@ -1,0 +1,383 @@
+/* ============================================================
+   AlgoPush — Injected Styles
+   Theme: Dark terminal with amber accents
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600&display=swap');
+
+/* ─── CSS Variables ───────────────────────────────────────── */
+:root {
+  --lc-bg: #0d0d0d;
+  --lc-bg2: #161616;
+  --lc-bg3: #1f1f1f;
+  --lc-border: #2a2a2a;
+  --lc-amber: #f59e0b;
+  --lc-amber-dim: #92400e;
+  --lc-green: #10b981;
+  --lc-red: #ef4444;
+  --lc-blue: #3b82f6;
+  --lc-text: #e5e5e5;
+  --lc-text-muted: #737373;
+  --lc-font: 'JetBrains Mono', monospace;
+  --lc-font-ui: 'Inter', sans-serif;
+  --lc-radius: 8px;
+  --lc-shadow: 0 25px 50px rgba(0,0,0,0.8);
+}
+
+/* ─── Approach + Push Buttons (injected near problem) ─────── */
+#lc-approach-container {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 10px 0 14px 0;
+  flex-wrap: wrap;
+  font-family: var(--lc-font-ui);
+}
+
+.lc-ai-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--lc-border);
+  background: var(--lc-bg2);
+  color: var(--lc-text);
+  font-family: var(--lc-font-ui);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.lc-ai-btn:hover {
+  background: var(--lc-bg3);
+  border-color: var(--lc-amber);
+  color: var(--lc-amber);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
+}
+
+.lc-ai-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.lc-push-btn:hover {
+  border-color: var(--lc-green);
+  color: var(--lc-green);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+}
+
+.btn-icon { font-size: 15px; }
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.spin { display: inline-block; animation: spin 0.8s linear infinite; }
+
+/* ─── Floating Action Button ─────────────────────────────── */
+#lc-ai-sync-fab {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 99999;
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
+  border: 1.5px solid var(--lc-amber);
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 8px 32px rgba(245, 158, 11, 0.2), 0 0 0 0 rgba(245, 158, 11, 0);
+  font-family: var(--lc-font-ui);
+}
+
+#lc-ai-sync-fab:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 12px 40px rgba(245, 158, 11, 0.35);
+  border-color: #fbbf24;
+}
+
+#lc-ai-sync-fab .fab-icon {
+  font-size: 22px;
+  line-height: 1;
+  transition: transform 0.2s;
+}
+
+#lc-ai-sync-fab .fab-label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--lc-amber);
+  text-transform: uppercase;
+  margin-top: 1px;
+}
+
+#lc-ai-sync-fab.syncing .fab-icon {
+  animation: spin 0.8s linear infinite;
+}
+
+#lc-ai-sync-fab.syncing {
+  border-color: var(--lc-green);
+  box-shadow: 0 8px 32px rgba(16, 185, 129, 0.25);
+}
+
+/* ─── Approach Panel (slide in from right) ───────────────── */
+#lc-approach-panel {
+  position: fixed;
+  top: 0;
+  right: -520px;
+  width: 480px;
+  height: 100vh;
+  z-index: 999999;
+  background: var(--lc-bg);
+  border-left: 1px solid var(--lc-border);
+  display: flex;
+  flex-direction: column;
+  font-family: var(--lc-font-ui);
+  transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: -10px 0 60px rgba(0,0,0,0.7);
+}
+
+#lc-approach-panel.panel-open {
+  right: 0;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--lc-border);
+  background: var(--lc-bg2);
+  flex-shrink: 0;
+}
+
+.panel-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--lc-text);
+}
+
+.panel-icon { font-size: 20px; }
+
+.powered-badge {
+  font-size: 10px;
+  font-family: var(--lc-font);
+  background: linear-gradient(135deg, var(--lc-amber-dim), #78350f);
+  color: var(--lc-amber);
+  border: 1px solid var(--lc-amber-dim);
+  padding: 2px 8px;
+  border-radius: 20px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.panel-close {
+  background: none;
+  border: 1px solid var(--lc-border);
+  color: var(--lc-text-muted);
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+.panel-close:hover { border-color: var(--lc-red); color: var(--lc-red); }
+
+.panel-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--lc-border) transparent;
+}
+
+/* Markdown rendered content */
+.approach-content {
+  flex: 1;
+  color: var(--lc-text);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.approach-content .md-h2 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--lc-amber);
+  margin: 20px 0 10px 0;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--lc-border);
+  font-family: var(--lc-font-ui);
+}
+
+.approach-content .md-h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--lc-text);
+  margin: 14px 0 6px 0;
+}
+
+.approach-content .md-p {
+  margin: 8px 0;
+  color: #c5c5c5;
+}
+
+.approach-content .md-code {
+  font-family: var(--lc-font);
+  background: var(--lc-bg3);
+  border: 1px solid var(--lc-border);
+  color: var(--lc-amber);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.approach-content ul {
+  padding-left: 20px;
+  margin: 8px 0;
+}
+
+.approach-content li {
+  margin: 4px 0;
+  color: #c5c5c5;
+}
+
+.approach-content strong {
+  color: var(--lc-text);
+  font-weight: 600;
+}
+
+.panel-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--lc-border);
+}
+
+.panel-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 8px;
+  font-family: var(--lc-font-ui);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  border: 1px solid transparent;
+}
+
+.panel-action-btn.primary {
+  background: linear-gradient(135deg, #065f46, #064e3b);
+  color: var(--lc-green);
+  border-color: var(--lc-green);
+}
+.panel-action-btn.primary:hover {
+  background: linear-gradient(135deg, #047857, #065f46);
+  box-shadow: 0 4px 20px rgba(16, 185, 129, 0.25);
+  transform: translateY(-1px);
+}
+
+.panel-action-btn.secondary {
+  background: var(--lc-bg2);
+  color: var(--lc-text-muted);
+  border-color: var(--lc-border);
+}
+.panel-action-btn.secondary:hover {
+  color: var(--lc-text);
+  border-color: var(--lc-text-muted);
+}
+
+/* ─── Approach Banner (compact, for auto-sync) ────────────── */
+#lc-approach-banner {
+  position: fixed;
+  bottom: -80px;
+  right: 100px;
+  z-index: 999998;
+  background: var(--lc-bg2);
+  border: 1px solid var(--lc-border);
+  border-radius: 12px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--lc-font-ui);
+  font-size: 13px;
+  color: var(--lc-text);
+  box-shadow: var(--lc-shadow);
+  transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  max-width: 500px;
+}
+
+#lc-approach-banner.banner-show { bottom: 28px; }
+
+.banner-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: nowrap;
+}
+
+#lc-banner-view, #lc-banner-push, #lc-banner-close {
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--lc-border);
+  background: var(--lc-bg3);
+  color: var(--lc-text);
+  font-family: var(--lc-font-ui);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+#lc-banner-view:hover { border-color: var(--lc-amber); color: var(--lc-amber); }
+#lc-banner-push:hover { border-color: var(--lc-green); color: var(--lc-green); }
+#lc-banner-close:hover { border-color: var(--lc-red); color: var(--lc-red); }
+
+/* ─── Toast Notification ────────────────────────────────── */
+#lc-ai-toast {
+  position: fixed;
+  top: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999999;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-family: var(--lc-font-ui);
+  font-size: 13px;
+  font-weight: 500;
+  max-width: 480px;
+  text-align: center;
+  transition: top 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  border: 1px solid transparent;
+}
+
+#lc-ai-toast.toast-show { top: 16px; }
+
+.toast-info    { background: #1e293b; color: #93c5fd; border-color: #3b82f6; }
+.toast-success { background: #052e16; color: #86efac; border-color: #16a34a; }
+.toast-warning { background: #2d1d00; color: #fcd34d; border-color: #d97706; }
+.toast-error   { background: #1f0808; color: #fca5a5; border-color: #dc2626; }

@@ -1,0 +1,31 @@
+# ─── Secrets & Personal Files ───
+.env
+*.env
+.env.*
+
+# Personal explanation (not for public repo)
+EXPLANATION.md
+
+# Dev tools (not needed by users)
+setup-icons.html
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Node (if ever added)
+node_modules/
+package-lock.json
+
+# Build artifacts
+*.zip
+*.crx
+*.pem

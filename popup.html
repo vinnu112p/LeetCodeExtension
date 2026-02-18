@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AlgoPush</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #0a0a0a;
+      --bg2:     #111111;
+      --bg3:     #1a1a1a;
+      --bg4:     #222222;
+      --border:  #2a2a2a;
+      --amber:   #f59e0b;
+      --amber2:  #fbbf24;
+      --green:   #10b981;
+      --red:     #ef4444;
+      --blue:    #60a5fa;
+      --text:    #e5e5e5;
+      --muted:   #6b6b6b;
+      --muted2:  #888;
+      --font:    'JetBrains Mono', monospace;
+      --fontUI:  'Space Grotesk', sans-serif;
+      --r:       8px;
+    }
+
+    html { width: 400px; }
+    body {
+      width: 400px;
+      min-height: 560px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--fontUI);
+      font-size: 13px;
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+
+    /* ── Header ── */
+    .header {
+      background: linear-gradient(135deg, #0d0d0d 0%, #141414 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+    .header::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 80% 50%, rgba(245,158,11,0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .header-logo {
+      width: 38px; height: 38px;
+      background: linear-gradient(135deg, #1a1207 0%, #292100 100%);
+      border: 1px solid var(--amber);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; flex-shrink: 0;
+      box-shadow: 0 0 20px rgba(245,158,11,0.2);
+    }
+    .header-text { flex: 1; }
+    .header-title {
+      font-family: var(--font);
+      font-size: 14px; font-weight: 700;
+      color: var(--amber);
+      letter-spacing: -0.02em;
+    }
+    .header-sub {
+      font-size: 11px; color: var(--muted2);
+      font-family: var(--fontUI);
+    }
+    .header-status-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--muted); flex-shrink: 0;
+      transition: background 0.3s;
+    }
+    .header-status-dot.connected { background: var(--green); box-shadow: 0 0 6px var(--green); }
+    .header-status-dot.error { background: var(--red); }
+
+    /* ── Tabs ── */
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg2);
+    }
+    .tab {
+      flex: 1; padding: 10px 0;
+      text-align: center; font-size: 12px; font-weight: 600;
+      color: var(--muted); cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s;
+      font-family: var(--fontUI);
+      letter-spacing: 0.02em;
+    }
+    .tab.active { color: var(--amber); border-bottom-color: var(--amber); }
+    .tab:hover:not(.active) { color: var(--text); }
+
+    /* ── Tab Panels ── */
+    .tab-panel { display: none; padding: 18px; }
+    .tab-panel.active { display: block; }
+
+    /* ── Section Headers ── */
+    .section-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--muted);
+      font-family: var(--font);
+      margin-bottom: 10px; margin-top: 16px;
+    }
+    .section-label:first-child { margin-top: 0; }
+
+    /* ── Form Fields ── */
+    .field { margin-bottom: 10px; }
+    .field label {
+      display: block; font-size: 12px; font-weight: 500;
+      color: var(--muted2); margin-bottom: 4px;
+    }
+    .field input, .field select {
+      width: 100%; padding: 9px 12px;
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: var(--r); color: var(--text);
+      font-family: var(--font); font-size: 12px;
+      outline: none; transition: border-color 0.15s, box-shadow 0.15s;
+      appearance: none;
+    }
+    .field input:focus, .field select:focus {
+      border-color: var(--amber);
+      box-shadow: 0 0 0 2px rgba(245,158,11,0.12);
+    }
+    .field input::placeholder { color: var(--muted); }
+
+    /* ── Toggle Switches ── */
+    .toggle-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 12px; background: var(--bg3);
+      border: 1px solid var(--border); border-radius: var(--r);
+      margin-bottom: 8px;
+    }
+    .toggle-info { flex: 1; }
+    .toggle-info .ti-label {
+      font-size: 13px; font-weight: 500; color: var(--text);
+    }
+    .toggle-info .ti-desc {
+      font-size: 11px; color: var(--muted2); margin-top: 2px;
+    }
+    .toggle {
+      position: relative; width: 38px; height: 20px; flex-shrink: 0; margin-left: 12px;
+    }
+    .toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+    .toggle-slider {
+      position: absolute; inset: 0; border-radius: 20px;
+      background: var(--bg4); border: 1px solid var(--border);
+      cursor: pointer; transition: all 0.2s;
+    }
+    .toggle-slider::before {
+      content: ''; position: absolute;
+      width: 14px; height: 14px; left: 3px; top: 2px;
+      border-radius: 50%; background: var(--muted);
+      transition: all 0.2s;
+    }
+    .toggle input:checked + .toggle-slider {
+      background: rgba(245,158,11,0.2); border-color: var(--amber);
+    }
+    .toggle input:checked + .toggle-slider::before {
+      transform: translateX(17px); background: var(--amber);
+      box-shadow: 0 0 6px rgba(245,158,11,0.5);
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      display: flex; align-items: center; justify-content: center; gap: 7px;
+      width: 100%; padding: 11px; border-radius: var(--r);
+      font-family: var(--fontUI); font-size: 13px; font-weight: 600;
+      cursor: pointer; transition: all 0.15s; border: 1px solid transparent;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #1a1207 0%, #221800 100%);
+      color: var(--amber); border-color: var(--amber);
+    }
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #2a1d0a 0%, #321f00 100%);
+      box-shadow: 0 4px 20px rgba(245,158,11,0.2);
+      transform: translateY(-1px);
+    }
+    .btn-secondary {
+      background: var(--bg3); color: var(--text); border-color: var(--border);
+    }
+    .btn-secondary:hover { border-color: var(--muted2); }
+    .btn-danger { background: rgba(239,68,68,0.1); color: var(--red); border-color: var(--red); }
+    .btn-danger:hover { background: rgba(239,68,68,0.2); }
+    .btn-green { background: rgba(16,185,129,0.1); color: var(--green); border-color: var(--green); }
+    .btn-green:hover { background: rgba(16,185,129,0.2); box-shadow: 0 4px 14px rgba(16,185,129,0.15); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+
+    .btn-row { display: flex; gap: 8px; margin-top: 4px; }
+    .btn-row .btn { flex: 1; }
+
+    /* ── Status Messages ── */
+    #status-msg {
+      padding: 10px 12px; border-radius: var(--r);
+      font-size: 12px; font-family: var(--font);
+      margin-top: 12px; display: none;
+      border: 1px solid transparent;
+    }
+    #status-msg.show { display: block; }
+    #status-msg.success { background: rgba(16,185,129,0.1); color: var(--green); border-color: rgba(16,185,129,0.3); }
+    #status-msg.error   { background: rgba(239,68,68,0.1); color: var(--red); border-color: rgba(239,68,68,0.3); }
+    #status-msg.info    { background: rgba(96,165,250,0.1); color: var(--blue); border-color: rgba(96,165,250,0.3); }
+
+    /* ── Info Cards ── */
+    .info-card {
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 12px; margin-bottom: 8px;
+    }
+    .info-card-title { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+    .info-card-body  { font-size: 11px; color: var(--muted2); line-height: 1.6; }
+    .info-card-body a { color: var(--amber); text-decoration: none; }
+    .info-card-body a:hover { text-decoration: underline; }
+    .info-card-body code {
+      background: var(--bg4); padding: 1px 5px; border-radius: 4px;
+      font-family: var(--font); color: var(--amber); font-size: 10px;
+    }
+
+    /* ── Sync History / Stats ── */
+    #stats-section { padding: 4px 0; }
+    .stat-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 8px 0; border-bottom: 1px solid var(--border);
+    }
+    .stat-row:last-child { border-bottom: none; }
+    .stat-label { font-size: 12px; color: var(--muted2); }
+    .stat-value { font-size: 13px; font-weight: 600; color: var(--text); font-family: var(--font); }
+    .stat-value.green { color: var(--green); }
+    .stat-value.amber { color: var(--amber); }
+
+    /* ── Current Problem Panel ── */
+    .current-problem {
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 14px; margin-bottom: 12px;
+    }
+    .cp-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+    .cp-meta { font-size: 11px; color: var(--muted2); margin-bottom: 12px; }
+    .cp-meta .diff {
+      display: inline-block; padding: 1px 8px; border-radius: 10px;
+      font-size: 10px; font-weight: 600;
+    }
+    .diff.easy   { background: rgba(34,197,94,0.15); color: #4ade80; }
+    .diff.medium { background: rgba(245,158,11,0.15); color: var(--amber); }
+    .diff.hard   { background: rgba(239,68,68,0.15); color: var(--red); }
+
+    /* ── Divider ── */
+    .divider { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
+
+    /* ── Key help hint ── */
+    .hint {
+      font-size: 10px; color: var(--muted); margin-top: 3px;
+      line-height: 1.4;
+    }
+    .hint a { color: var(--amber); text-decoration: none; }
+    .hint a:hover { text-decoration: underline; }
+
+    /* ── Footer ── */
+    .footer {
+      border-top: 1px solid var(--border);
+      padding: 10px 18px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: var(--bg2);
+    }
+    .footer-text { font-size: 10px; color: var(--muted); font-family: var(--font); }
+    .footer-link { color: var(--amber); text-decoration: none; font-size: 10px; }
+    .footer-link:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-logo">⚡</div>
+  <div class="header-text">
+    <div class="header-title">AlgoPush</div>
+    <div class="header-sub">Groq-powered • GitHub sync • Instant approach</div>
+  </div>
+  <div class="header-status-dot" id="status-dot" title="Not connected"></div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab active" data-tab="settings">⚙️ Settings</div>
+  <div class="tab" data-tab="sync">📤 Sync</div>
+  <div class="tab" data-tab="stats">📊 Stats</div>
+  <div class="tab" data-tab="help">💡 Help</div>
+</div>
+
+<!-- ─────────── TAB: SETTINGS ─────────── -->
+<div class="tab-panel active" id="tab-settings">
+
+  <div class="section-label">GitHub Configuration</div>
+
+  <div class="field">
+    <label>Personal Access Token</label>
+    <input type="password" id="github-token" placeholder="ghp_xxxxxxxxxxxx" />
+    <div class="hint">Needs <code>repo</code> scope. <a href="https://github.com/settings/tokens/new" target="_blank">Generate token →</a></div>
+  </div>
+  <div class="field">
+    <label>GitHub Username</label>
+    <input type="text" id="github-username" placeholder="your-username" />
+  </div>
+  <div class="field">
+    <label>Repository Name</label>
+    <input type="text" id="github-repo" placeholder="leetcode-solutions" />
+  </div>
+  <div class="field">
+    <label>Branch</label>
+    <input type="text" id="github-branch" placeholder="main" />
+  </div>
+  <div class="field">
+    <label>Solutions Folder (in repo)</label>
+    <input type="text" id="repo-folder" placeholder="solutions" />
+    <div class="hint">Files go to: <code>solutions/easy/0001-two-sum/</code></div>
+  </div>
+
+  <div class="section-label">Groq AI Configuration</div>
+
+  <div class="field">
+    <label>Groq API Key</label>
+    <input type="password" id="groq-key" placeholder="gsk_xxxxxxxxxxxx" />
+    <div class="hint">Free tier available. <a href="https://console.groq.com/keys" target="_blank">Get key →</a></div>
+  </div>
+
+  <div class="section-label">Behavior</div>
+
+  <div class="toggle-row" style="opacity: 0.5; pointer-events: none;">
+    <div class="toggle-info">
+      <div class="ti-label">Auto-sync on Accept</div>
+      <div class="ti-desc">⚠️ Disabled - Use manual sync buttons only</div>
+    </div>
+    <label class="toggle">
+      <input type="checkbox" id="toggle-autosync" disabled />
+      <span class="toggle-slider"></span>
+    </label>
+  </div>
+
+  <div class="toggle-row">
+    <div class="toggle-info">
+      <div class="ti-label">AI Analysis (Groq LLM)</div>
+      <div class="ti-desc">Generate approach + optimized solution via Groq</div>
+    </div>
+    <label class="toggle">
+      <input type="checkbox" id="toggle-ai" checked />
+      <span class="toggle-slider"></span>
+    </label>
+  </div>
+
+  <div class="btn-row" style="margin-top: 16px;">
+    <button class="btn btn-secondary" id="btn-test">🔍 Test Connection</button>
+    <button class="btn btn-primary" id="btn-save">💾 Save Settings</button>
+  </div>
+
+  <div id="status-msg"></div>
+</div>
+
+<!-- ─────────── TAB: SYNC ─────────── -->
+<div class="tab-panel" id="tab-sync">
+
+  <div class="section-label">Current Problem</div>
+  <div class="current-problem" id="current-problem-panel">
+    <div class="cp-title" id="cp-title">Open a LeetCode problem to sync</div>
+    <div class="cp-meta" id="cp-meta">Navigate to a problem page first</div>
+    <button class="btn btn-green" id="btn-manual-sync" disabled>
+      ⚡ Sync Current Solution to GitHub
+    </button>
+  </div>
+
+  <div class="section-label">AI Features</div>
+  <div class="toggle-row" style="cursor: pointer;" id="btn-get-approach-popup">
+    <div class="toggle-info">
+      <div class="ti-label">🧠 Get Approach Explanation</div>
+      <div class="ti-desc">View AI approach for current problem (no code, just thinking)</div>
+    </div>
+    <span style="color: var(--muted); font-size: 16px;">›</span>
+  </div>
+
+  <hr class="divider" />
+
+  <div class="section-label">Push Without Auto-Sync</div>
+  <div class="info-card">
+    <div class="info-card-body">
+      Already solved a problem and want to push it? Open the problem page, then use the <strong>⚡ floating button</strong> on the bottom-right of LeetCode or the button above. The extension will extract your latest code and push it with AI analysis.
+    </div>
+  </div>
+
+  <div id="status-msg-sync"></div>
+</div>
+
+<!-- ─────────── TAB: STATS ─────────── -->
+<div class="tab-panel" id="tab-stats">
+  <div class="section-label">Session Statistics</div>
+  <div id="stats-section">
+    <div class="stat-row">
+      <span class="stat-label">Problems Synced (session)</span>
+      <span class="stat-value green" id="stat-synced">0</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">AI Analyses Generated</span>
+      <span class="stat-value amber" id="stat-ai">0</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Last Synced Problem</span>
+      <span class="stat-value" id="stat-last">—</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Last Sync Time</span>
+      <span class="stat-value" id="stat-time">—</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">GitHub Status</span>
+      <span class="stat-value" id="stat-github">Not verified</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Groq AI Status</span>
+      <span class="stat-value" id="stat-groq">Not verified</span>
+    </div>
+  </div>
+
+  <div style="margin-top: 16px;">
+    <button class="btn btn-danger" id="btn-reset-stats">Reset Stats</button>
+  </div>
+</div>
+
+<!-- ─────────── TAB: HELP ─────────── -->
+<div class="tab-panel" id="tab-help">
+
+  <div class="info-card">
+    <div class="info-card-title">🚀 Quick Start</div>
+    <div class="info-card-body">
+      1. Add your GitHub token + repo in Settings<br />
+      2. Add your Groq API key (free at console.groq.com)<br />
+      3. Solve a problem on LeetCode<br />
+      4. Submit → it auto-syncs! Or click <code>⚡</code>
+    </div>
+  </div>
+
+  <div class="info-card">
+    <div class="info-card-title">🧠 What Gets Pushed to GitHub?</div>
+    <div class="info-card-body">
+      Three files per problem in <code>solutions/difficulty/NNNN-problem-name/</code>:<br /><br />
+      • <code>solution.py</code> — Your submitted code<br />
+      • <code>optimized.py</code> — AI-optimized solution<br />
+      • <code>APPROACH.md</code> — Full approach explanation
+    </div>
+  </div>
+
+  <div class="info-card">
+    <div class="info-card-title">💡 Approach Panel</div>
+    <div class="info-card-body">
+      Click the <code>🧠 Get Approach</code> button on any problem page to see:<br /><br />
+      • Core intuition (no code!)<br />
+      • Step-by-step algorithm walkthrough<br />
+      • Time & space complexity<br />
+      • Key insights & edge cases<br />
+      • Related patterns
+    </div>
+  </div>
+
+  <div class="info-card">
+    <div class="info-card-title">🔑 Getting API Keys</div>
+    <div class="info-card-body">
+      <strong>GitHub Token:</strong> <a href="https://github.com/settings/tokens/new" target="_blank">github.com/settings/tokens</a> → Select <code>repo</code> scope<br /><br />
+      <strong>Groq API Key:</strong> <a href="https://console.groq.com/keys" target="_blank">console.groq.com/keys</a> → Free tier, generous limits<br /><br />
+      Model used: <code>llama-3.1-8b-instant</code>
+    </div>
+  </div>
+
+  <div class="info-card">
+    <div class="info-card-title">⚠️ Code Not Detected?</div>
+    <div class="info-card-body">
+      Use the <code>⚡</code> floating button bottom-right of LeetCode, or the <code>📤 Push to GitHub</code> button near the problem description. Both trigger manual extraction.
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <span class="footer-text">AlgoPush v1.0.0</span>
+  <a href="https://github.com" class="footer-link" target="_blank">View on GitHub</a>
+</div>
+
+<script src="popup.js"></script>
+</body>
+</html>
