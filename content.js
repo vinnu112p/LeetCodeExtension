@@ -64,10 +64,14 @@
     const fab = document.createElement("div");
     fab.id = "lc-ai-sync-fab";
     fab.title = "Sync to GitHub with AI";
-    fab.innerHTML = `
-      <div class="fab-icon">⚡</div>
-      <div class="fab-label">Sync</div>
-    `;
+    const fabIcon = document.createElement("div");
+    fabIcon.className = "fab-icon";
+    fabIcon.textContent = "⚡";
+    const fabLabel = document.createElement("div");
+    fabLabel.className = "fab-label";
+    fabLabel.textContent = "Sync";
+    fab.appendChild(fabIcon);
+    fab.appendChild(fabLabel);
     fab.addEventListener("click", () => handleManualSync());
     document.body.appendChild(fab);
   }
