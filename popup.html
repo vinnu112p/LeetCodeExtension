@@ -287,16 +287,14 @@
   <div class="header-logo">⚡</div>
   <div class="header-text">
     <div class="header-title">AlgoPush</div>
-    <div class="header-sub">Groq-powered • GitHub sync • Instant approach</div>
+    <div class="header-sub">AI-powered • GitHub sync • Instant approach</div>
   </div>
   <div class="header-status-dot" id="status-dot" title="Not connected"></div>
 </div>
 
 <!-- TABS -->
 <div class="tabs">
-  <div class="tab active" data-tab="settings">⚙️ Settings</div>
-  <div class="tab" data-tab="sync">📤 Sync</div>
-  <div class="tab" data-tab="stats">📊 Stats</div>
+  <div class="tab active" data-tab="settings">⚙️ Configure</div>
   <div class="tab" data-tab="help">💡 Help</div>
 </div>
 
@@ -338,26 +336,10 @@
 
   <div class="section-label">Behavior</div>
 
-  <div class="toggle-row" style="opacity: 0.5; pointer-events: none;">
-    <div class="toggle-info">
-      <div class="ti-label">Auto-sync on Accept</div>
-      <div class="ti-desc">⚠️ Disabled - Use manual sync buttons only</div>
+  <div class="info-card" style="margin-bottom: 12px;">
+    <div class="info-card-body">
+      AI analysis is always enabled when a valid API key is configured.
     </div>
-    <label class="toggle">
-      <input type="checkbox" id="toggle-autosync" disabled />
-      <span class="toggle-slider"></span>
-    </label>
-  </div>
-
-  <div class="toggle-row">
-    <div class="toggle-info">
-      <div class="ti-label">AI Analysis (Groq LLM)</div>
-      <div class="ti-desc">Generate approach + optimized solution via Groq</div>
-    </div>
-    <label class="toggle">
-      <input type="checkbox" id="toggle-ai" checked />
-      <span class="toggle-slider"></span>
-    </label>
   </div>
 
   <div class="btn-row" style="margin-top: 16px;">
@@ -368,106 +350,58 @@
   <div id="status-msg"></div>
 </div>
 
-<!-- ─────────── TAB: SYNC ─────────── -->
-<div class="tab-panel" id="tab-sync">
-
-  <div class="section-label">Current Problem</div>
-  <div class="current-problem" id="current-problem-panel">
-    <div class="cp-title" id="cp-title">Open a LeetCode problem to sync</div>
-    <div class="cp-meta" id="cp-meta">Navigate to a problem page first</div>
-    <button class="btn btn-green" id="btn-manual-sync" disabled>
-      ⚡ Sync Current Solution to GitHub
-    </button>
-  </div>
-
-  <div class="section-label">AI Features</div>
-  <div class="toggle-row" style="cursor: pointer;" id="btn-get-approach-popup">
-    <div class="toggle-info">
-      <div class="ti-label">🧠 Get Approach Explanation</div>
-      <div class="ti-desc">View AI approach for current problem (no code, just thinking)</div>
-    </div>
-    <span style="color: var(--muted); font-size: 16px;">›</span>
-  </div>
-
-  <hr class="divider" />
-
-  <div class="section-label">Push Without Auto-Sync</div>
-  <div class="info-card">
-    <div class="info-card-body">
-      Already solved a problem and want to push it? Open the problem page, then use the <strong>⚡ floating button</strong> on the bottom-right of LeetCode or the button above. The extension will extract your latest code and push it with AI analysis.
-    </div>
-  </div>
-
-  <div id="status-msg-sync"></div>
-</div>
-
-<!-- ─────────── TAB: STATS ─────────── -->
-<div class="tab-panel" id="tab-stats">
-  <div class="section-label">Session Statistics</div>
-  <div id="stats-section">
-    <div class="stat-row">
-      <span class="stat-label">Problems Synced (session)</span>
-      <span class="stat-value green" id="stat-synced">0</span>
-    </div>
-    <div class="stat-row">
-      <span class="stat-label">AI Analyses Generated</span>
-      <span class="stat-value amber" id="stat-ai">0</span>
-    </div>
-    <div class="stat-row">
-      <span class="stat-label">Last Synced Problem</span>
-      <span class="stat-value" id="stat-last">—</span>
-    </div>
-    <div class="stat-row">
-      <span class="stat-label">Last Sync Time</span>
-      <span class="stat-value" id="stat-time">—</span>
-    </div>
-    <div class="stat-row">
-      <span class="stat-label">GitHub Status</span>
-      <span class="stat-value" id="stat-github">Not verified</span>
-    </div>
-    <div class="stat-row">
-      <span class="stat-label">Groq AI Status</span>
-      <span class="stat-value" id="stat-groq">Not verified</span>
-    </div>
-  </div>
-
-  <div style="margin-top: 16px;">
-    <button class="btn btn-danger" id="btn-reset-stats">Reset Stats</button>
-  </div>
-</div>
-
 <!-- ─────────── TAB: HELP ─────────── -->
 <div class="tab-panel" id="tab-help">
 
   <div class="info-card">
-    <div class="info-card-title">🚀 Quick Start</div>
+    <div class="info-card-title">⚙️ Configure (One-Time Setup)</div>
     <div class="info-card-body">
-      1. Add your GitHub token + repo in Settings<br />
-      2. Add your Groq API key (free at console.groq.com)<br />
-      3. Solve a problem on LeetCode<br />
-      4. Submit → it auto-syncs! Or click <code>⚡</code>
+      1. Open the <strong>Configure</strong> tab in this popup<br />
+      2. Add GitHub token, username, repository, branch, and solutions folder<br />
+      3. Add your API key for AI analysis<br />
+      4. Click <strong>💾 Save Settings</strong><br />
+      5. Click <strong>🔍 Test Connection</strong> to verify GitHub + AI are reachable
     </div>
   </div>
 
   <div class="info-card">
-    <div class="info-card-title">🧠 What Gets Pushed to GitHub?</div>
+    <div class="info-card-title">🚀 How To Use</div>
     <div class="info-card-body">
-      Three files per problem in <code>solutions/difficulty/NNNN-problem-name/</code>:<br /><br />
-      • <code>solution.py</code> — Your submitted code<br />
-      • <code>optimized.py</code> — AI-optimized solution<br />
-      • <code>APPROACH.md</code> — Full approach explanation
+      1. Open any LeetCode problem page<br />
+      2. Write your solution in the editor<br />
+      3. Use one of the three buttons (explained below)<br />
+      4. Check your GitHub repository after push completes
     </div>
   </div>
 
   <div class="info-card">
-    <div class="info-card-title">💡 Approach Panel</div>
+    <div class="info-card-title">🔘 Three Buttons (Updated Behavior)</div>
     <div class="info-card-body">
-      Click the <code>🧠 Get Approach</code> button on any problem page to see:<br /><br />
-      • Core intuition (no code!)<br />
-      • Step-by-step algorithm walkthrough<br />
-      • Time & space complexity<br />
-      • Key insights & edge cases<br />
-      • Related patterns
+      <strong>🧠 Get Approach</strong><br />
+      • Shows only the approach panel (thinking/analysis)<br />
+      • Does <strong>not</strong> push to GitHub<br /><br />
+
+      <strong>📤 Push to GitHub</strong><br />
+      • Shows approach panel first<br />
+      • Panel includes push button; push happens only when you confirm<br /><br />
+
+      <strong>⚡ Floating Button (bottom-right)</strong><br />
+      • Instant push flow<br />
+      • No side panel opens
+    </div>
+  </div>
+
+  <div class="info-card">
+    <div class="info-card-title">📁 What Gets Pushed</div>
+    <div class="info-card-body">
+      One file per problem is pushed to:<br />
+      <code>solutions/difficulty/NNNN-problem-name/solution.md</code><br /><br />
+
+      That single <code>solution.md</code> includes:<br />
+      • Problem statement and metadata<br />
+      • AI approach explanation<br />
+      • Your submitted code + complexity<br />
+      • AI-optimized code + complexity
     </div>
   </div>
 
@@ -476,7 +410,7 @@
     <div class="info-card-body">
       <strong>GitHub Token:</strong> <a href="https://github.com/settings/tokens/new" target="_blank">github.com/settings/tokens</a> → Select <code>repo</code> scope<br /><br />
       <strong>Groq API Key:</strong> <a href="https://console.groq.com/keys" target="_blank">console.groq.com/keys</a> → Free tier, generous limits<br /><br />
-      Model used: <code>llama-3.1-8b-instant</code>
+      Model used: <code>openai/gpt-oss-120b</code>
     </div>
   </div>
 
@@ -492,7 +426,7 @@
 <!-- FOOTER -->
 <div class="footer">
   <span class="footer-text">AlgoPush v1.0.0</span>
-  <a href="https://github.com" class="footer-link" target="_blank">View on GitHub</a>
+  <a href="https://github.com/vinnu112p/AlgoPush.git" class="footer-link" target="_blank">View on GitHub</a>
 </div>
 
 <script src="popup.js"></script>

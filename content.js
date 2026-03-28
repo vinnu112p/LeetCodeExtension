@@ -1,14 +1,14 @@
 // ============================================================
 // AlgoPush — Content Script
 // Injected into: leetcode.com/problems/*
-// Features: Submission detection, Approach panel, Manual sync
+// Features: Approach panel, robust extraction, manual sync
 // ============================================================
 
 (function () {
   "use strict";
 
   let approachPanelOpen = false;
-  let lastPushedSubmissionId = null;
+  let lastDetectedLanguage = null;
   let isProcessing = false;
   let toastTimeout = null;
 
@@ -68,7 +68,7 @@
       <div class="fab-icon">⚡</div>
       <div class="fab-label">Sync</div>
     `;
-    fab.addEventListener("click", () => handleManualSync());
+    fab.addEventListener("click", () => handleManualSync({ mode: "instant" }));
     document.body.appendChild(fab);
   }
 
@@ -108,107 +108,11 @@
     target.parentNode.insertBefore(container, target);
 
     document.getElementById("lc-approach-btn").addEventListener("click", handleGetApproach);
-    document.getElementById("lc-manual-push-btn").addEventListener("click", handleManualSync);
-  }
-
-  // ─── Submission Watcher (MutationObserver) ─────────────────
-  // DISABLED: Only manual sync is allowed to prevent auto-triggering
-  function startSubmissionWatcher() {
-    // Auto-sync disabled - users must click the manual sync button
-    console.log("[AlgoPush] Auto-submission watching is disabled. Use manual sync buttons.");
-    return;
-    
-    /* Original auto-watch code (disabled)
-    const observer = new MutationObserver(() => {
-      if (isProcessing) return;
-
-      // Look for "Accepted" status text in the DOM
-      const accepted = findAcceptedElement();
-      if (accepted) {
-        isProcessing = true;
-        setTimeout(async () => {
-          await handleAcceptedSubmission();
-          isProcessing = false;
-        }, 1000);
-      }
-    });
-
-    observer.observe(document.body, { childList: true, subtree: true });
-    */
-  }
-
-  function findAcceptedElement() {
-    // Multiple ways LeetCode shows "Accepted"
-    const selectors = [
-      '[data-e2e-locator="submission-result"]',
-      '.text-green-s',
-      '[class*="accepted"]',
-    ];
-
-    for (const sel of selectors) {
-      const el = document.querySelector(sel);
-      if (el && el.textContent.trim().toLowerCase() === "accepted") return el;
-    }
-
-    // Fallback: search all elements for "Accepted" text
-    const allEls = document.querySelectorAll('span, div, h4, p');
-    for (const el of allEls) {
-      if (el.children.length === 0 && el.textContent.trim() === "Accepted") {
-        const rect = el.getBoundingClientRect();
-        if (rect.width > 0) return el; // visible element
-      }
-    }
-    return null;
-  }
-
-  // ─── Handle Accepted Submission ───────────────────────────
-  async function handleAcceptedSubmission() {
-    const settings = await getSettings();
-    if (!settings.autoSync) return;
-
-    const problemData = extractProblemData();
-    const userCode = await extractUserCode();
-    const language = extractLanguage();
-
-    if (!userCode) {
-      showToast("⚠️ Could not extract code. Use ⚡ button to sync manually.", "warning");
-      return;
-    }
-
-    showToast("✅ Accepted! Processing with AI...", "info", 0);
-
-    if (settings.aiEnabled && settings.groqApiKey) {
-      // Get approach + optimized from Groq, then push all
-      chrome.runtime.sendMessage({
-        type: "GET_APPROACH",
-        data: {
-          problemTitle: problemData.title,
-          problemDescription: problemData.description,
-          userCode,
-          language,
-          difficulty: problemData.difficulty,
-        },
-      }, (aiResult) => {
-        if (aiResult?.error) {
-          showToast(`⚠️ AI error: ${aiResult.error}. Pushing code only...`, "warning");
-          pushToGithub({ problemData, userCode, language, settings });
-        } else {
-          showApproachBanner(aiResult.approach, () => {
-            pushToGithub({
-              problemData, userCode, language, settings,
-              optimizedCode: aiResult.optimizedCode,
-              approach: aiResult.approach,
-            });
-          });
-        }
-      });
-    } else {
-      await pushToGithub({ problemData, userCode, language, settings });
-    }
+    document.getElementById("lc-manual-push-btn").addEventListener("click", () => handleManualSync({ mode: "review" }));
   }
 
   // ─── Handle Manual Sync Button ─────────────────────────────
-  async function handleManualSync() {
+  async function handleManualSync({ mode = "review" } = {}) {
     if (isProcessing) {
       showToast("⏳ Already processing...", "info");
       return;
@@ -225,7 +129,7 @@
 
     const problemData = extractProblemData();
     const userCode = await extractUserCode();
-    const language = extractLanguage();
+    const language = extractLanguage(userCode);
 
     if (!userCode) {
       showToast("❌ Could not extract your code. Make sure you're on a problem page with code written.", "error");
@@ -233,7 +137,8 @@
       return;
     }
 
-    showToast("🔄 Syncing with AI analysis...", "info", 0);
+    const isInstant = mode === "instant";
+    showToast(isInstant ? "⚡ Instant sync in progress..." : "🔄 Syncing with AI analysis...", "info", 0);
 
     if (settings.aiEnabled && settings.groqApiKey) {
       chrome.runtime.sendMessage({
@@ -250,13 +155,30 @@
           showToast(`⚠️ AI unavailable: ${aiResult.error}. Pushing code only...`, "warning");
           await pushToGithub({ problemData, userCode, language, settings });
         } else {
-          showApproachPanel(aiResult.approach, aiResult.optimizedCode, () => {
-            pushToGithub({
-              problemData, userCode, language, settings,
+          if (isInstant) {
+            await pushToGithub({
+              problemData,
+              userCode,
+              language,
+              settings,
               optimizedCode: aiResult.optimizedCode,
               approach: aiResult.approach,
             });
-          });
+          } else {
+            showApproachPanel(aiResult.approach, {
+              showPush: true,
+              onPush: () => {
+                pushToGithub({
+                  problemData,
+                  userCode,
+                  language,
+                  settings,
+                  optimizedCode: aiResult.optimizedCode,
+                  approach: aiResult.approach,
+                });
+              },
+            });
+          }
         }
         isProcessing = false;
       });
@@ -287,7 +209,7 @@
 
     const problemData = extractProblemData();
     const userCode = await extractUserCode();
-    const language = extractLanguage();
+    const language = extractLanguage(userCode);
 
     chrome.runtime.sendMessage({
       type: "GET_APPROACH",
@@ -309,23 +231,14 @@
         return;
       }
 
-      showApproachPanel(result.approach, result.optimizedCode, async () => {
-        const uCode = await extractUserCode();
-        const s = await getSettings();
-        pushToGithub({
-          problemData,
-          userCode: uCode,
-          language,
-          settings: s,
-          optimizedCode: result.optimizedCode,
-          approach: result.approach,
-        });
-      });
+      showApproachPanel(result.approach, { showPush: false });
     });
   }
 
   // ─── Approach Panel (slide-in from right) ──────────────────
-  function showApproachPanel(approach, optimizedCode, onPush) {
+  function showApproachPanel(approach, options = {}) {
+    const { showPush = true, onPush = null } = options;
+
     closeApproachPanel();
     approachPanelOpen = true;
 
@@ -339,16 +252,16 @@
         <div class="panel-title">
           <span class="panel-icon">🧠</span>
           <span>AI Approach Analysis</span>
-          <span class="powered-badge">Groq LLM</span>
+          <span class="powered-badge">AI</span>
         </div>
         <button class="panel-close" id="lc-panel-close">✕</button>
       </div>
       <div class="panel-body">
         <div class="approach-content">${rendered}</div>
         <div class="panel-actions">
-          <button class="panel-action-btn primary" id="lc-panel-push">
+          ${showPush ? `<button class="panel-action-btn primary" id="lc-panel-push">
             <span>📤</span> Push to GitHub (My Solution + Optimized + Approach)
-          </button>
+          </button>` : ""}
           <button class="panel-action-btn secondary" id="lc-panel-close2">
             Got it, close
           </button>
@@ -363,36 +276,13 @@
 
     document.getElementById("lc-panel-close").addEventListener("click", closeApproachPanel);
     document.getElementById("lc-panel-close2").addEventListener("click", closeApproachPanel);
-    document.getElementById("lc-panel-push").addEventListener("click", () => {
-      closeApproachPanel();
-      if (onPush) onPush();
-    });
-  }
-
-  function showApproachBanner(approach, onPush) {
-    // Compact banner for auto-sync flow
-    const banner = document.createElement("div");
-    banner.id = "lc-approach-banner";
-    banner.innerHTML = `
-      <div class="banner-header">
-        <span>🧠 AI Analysis Ready!</span>
-        <button id="lc-banner-view">View Approach</button>
-        <button id="lc-banner-push">📤 Push Now</button>
-        <button id="lc-banner-close">✕</button>
-      </div>
-    `;
-    document.body.appendChild(banner);
-    requestAnimationFrame(() => banner.classList.add("banner-show"));
-
-    document.getElementById("lc-banner-view").addEventListener("click", () => {
-      banner.remove();
-      showApproachPanel(approach, null, onPush);
-    });
-    document.getElementById("lc-banner-push").addEventListener("click", () => {
-      banner.remove();
-      if (onPush) onPush();
-    });
-    document.getElementById("lc-banner-close").addEventListener("click", () => banner.remove());
+    const pushBtn = document.getElementById("lc-panel-push");
+    if (pushBtn) {
+      pushBtn.addEventListener("click", () => {
+        closeApproachPanel();
+        if (onPush) onPush();
+      });
+    }
   }
 
   function closeApproachPanel() {
@@ -454,10 +344,7 @@
     const difficulty = diffEl?.textContent?.trim() || "Medium";
 
     // Description
-    const descEl = document.querySelector('[data-track-load="description_content"]') ||
-                   document.querySelector('.elfjS') ||
-                   document.querySelector('[class*="description"]');
-    const description = descEl?.textContent?.trim().slice(0, 2000) || "";
+    const description = extractProblemDescription();
 
     return {
       title,
@@ -486,7 +373,11 @@
         resolved = true;
         window.removeEventListener('lc-ai-sync-code-result', handler);
 
-        const { code, error } = event.detail || {};
+        const { code, language, error } = event.detail || {};
+
+        if (language) {
+          lastDetectedLanguage = normalizeLanguage(language);
+        }
 
         if (code && code.length >= 10) {
           console.log(`✅ Full code extracted via Monaco (${code.length} chars)`);
@@ -530,14 +421,25 @@
     });
   }
 
-  function extractLanguage() {
+  function extractLanguage(userCode = "") {
+    if (lastDetectedLanguage && lastDetectedLanguage !== "unknown") {
+      return lastDetectedLanguage;
+    }
+
+    // URL often includes selected language after submission view
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const langParam = params.get("lang") || params.get("language");
+      if (langParam) return normalizeLanguage(langParam);
+    } catch (_) {}
+
     // Try to detect language from button/selector first
     try {
       const langButton = document.querySelector('[class*="language"], [id*="language"]');
       if (langButton) {
-        const text = (langButton.textContent || langButton.innerText).trim().toLowerCase();
+        const text = (langButton.textContent || langButton.innerText).trim();
         if (text.length > 0 && text.length < 20) {
-          return text;
+          return normalizeLanguage(text);
         }
       }
     } catch (_) {}
@@ -548,22 +450,76 @@
       for (const tab of tabs) {
         const text = (tab.textContent || tab.innerText).toLowerCase();
         if (["java", "python", "python3", "cpp", "c++", "javascript", "typescript", "go", "rust"].some(l => text.includes(l))) {
-          return text.split(' ')[0];
+          return normalizeLanguage(text.split(' ')[0]);
         }
       }
     } catch (_) {}
 
     // Look at code content to infer language
     try {
-      const userCode = document.body.textContent || '';
-      if (userCode.includes('public class')) return 'java';
-      if (userCode.includes('def ')) return 'python3';
-      if (userCode.includes('#include')) return 'cpp';
-      if (userCode.includes('function ')) return 'javascript';
-      if (userCode.includes('fn ')) return 'rust';
+      if (userCode.includes('public class') || userCode.includes('class Solution {')) return 'java';
+      if (userCode.includes('def ') || userCode.includes('class Solution:')) return 'python';
+      if (userCode.includes('#include') || userCode.includes('std::')) return 'cpp';
+      if (userCode.includes('function ') || userCode.includes('const ') || userCode.includes('let ')) return 'javascript';
+      if (userCode.includes('fn ') || userCode.includes('impl ')) return 'rust';
     } catch (_) {}
 
-    return "java"; // Default to Java based on user context
+    return "unknown";
+  }
+
+  function normalizeLanguage(raw) {
+    const lang = (raw || "").toString().trim().toLowerCase();
+    const map = {
+      python3: "python",
+      py: "python",
+      csharp: "c#",
+      cplusplus: "cpp",
+      javascriptreact: "javascript",
+      typescriptreact: "typescript",
+    };
+
+    if (!lang) return "unknown";
+    if (map[lang]) return map[lang];
+    if (lang.includes("python")) return "python";
+    if (lang.includes("java") && !lang.includes("javascript")) return "java";
+    if (lang.includes("javascript")) return "javascript";
+    if (lang.includes("typescript")) return "typescript";
+    if (lang.includes("c++") || lang === "cpp") return "cpp";
+    if (lang.includes("c#")) return "c#";
+    if (lang.includes("golang") || lang === "go") return "go";
+    if (lang.includes("rust")) return "rust";
+    if (lang.includes("kotlin")) return "kotlin";
+    if (lang.includes("swift")) return "swift";
+    if (lang.includes("php")) return "php";
+    if (lang.includes("ruby")) return "ruby";
+    if (lang.includes("scala")) return "scala";
+    if (lang.includes("mysql") || lang === "sql") return "sql";
+
+    if (/^\d+\.?$/.test(lang)) return "unknown";
+    return lang;
+  }
+
+  function extractProblemDescription() {
+    const descEl = document.querySelector('[data-track-load="description_content"]') ||
+                   document.querySelector('.elfjS') ||
+                   document.querySelector('[class*="description"]');
+    if (!descEl) return "";
+
+    const clone = descEl.cloneNode(true);
+    clone.querySelectorAll("sup").forEach((sup) => {
+      const txt = (sup.textContent || "").trim();
+      sup.replaceWith(document.createTextNode(`^${txt}`));
+    });
+
+    const text = (clone.textContent || "").replace(/\u00a0/g, " ");
+    return normalizeConstraintText(text).trim().slice(0, 2000);
+  }
+
+  function normalizeConstraintText(text) {
+    return text
+      .replace(/\[\s*0\s*,\s*104\s*\]/g, "[0, 10^4]")
+      .replace(/-231\s*<=/g, "-2^31 <=")
+      .replace(/<=\s*231\s*-\s*1/g, "<= 2^31 - 1");
   }
 
   // ─── Toast Notification ──────────────────────────────────────
@@ -610,10 +566,9 @@
     return new Promise(resolve => {
       chrome.storage.sync.get([
         "githubToken", "githubUsername", "githubRepo", "githubBranch",
-        "groqApiKey", "repoFolder", "autoSync", "aiEnabled"
+        "groqApiKey", "repoFolder", "aiEnabled"
       ], (result) => {
         resolve({
-          autoSync: result.autoSync !== false,
           aiEnabled: result.aiEnabled !== false,
           ...result
         });
@@ -624,7 +579,7 @@
   // ─── Message Listener (from popup) ─────────────────────────
   chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     if (msg.type === "MANUAL_SYNC_FROM_POPUP") {
-      handleManualSync();
+      handleManualSync({ mode: "review" });
       sendResponse({ ok: true });
     }
     if (msg.type === "GET_APPROACH_FROM_POPUP") {

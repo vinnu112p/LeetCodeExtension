@@ -6,16 +6,16 @@
 
 ### Push LeetCode solutions to GitHub — with AI-powered explanations & optimized code
 
-[![Version](https://img.shields.io/badge/version-1.0.0-f59e0b?style=for-the-badge&logo=googlechrome&logoColor=white)](https://github.com/)
+[![Version](https://img.shields.io/badge/version-1.0.0-f59e0b?style=for-the-badge&logo=googlechrome&logoColor=white)](https://github.com/vinnu112p/AlgoPush)
 [![Manifest](https://img.shields.io/badge/Manifest-V3-3b82f6?style=for-the-badge&logo=google-chrome&logoColor=white)](https://developer.chrome.com/docs/extensions/mv3/)
-[![Groq](https://img.shields.io/badge/AI-Groq%20LLM-10b981?style=for-the-badge&logo=openai&logoColor=white)](https://groq.com)
+[![AI](https://img.shields.io/badge/AI-openai%2Fgpt--oss--120b-10b981?style=for-the-badge&logo=openai&logoColor=white)](https://groq.com)
 [![License](https://img.shields.io/badge/License-MIT-a855f7?style=for-the-badge)](LICENSE)
-[![Open Source](https://img.shields.io/badge/Open%20Source-%E2%9D%A4-ef4444?style=for-the-badge)](https://github.com/)
+[![Open Source](https://img.shields.io/badge/Open%20Source-%E2%9D%A4-ef4444?style=for-the-badge)](https://github.com/vinnu112p/AlgoPush)
 
 <br />
 
 <p align="center">
-  <b>Solve → Click Sync → Auto-push to GitHub with AI analysis</b><br/>
+  <b>Solve → Choose a sync mode → Push clean AI-enhanced notes to GitHub</b><br/>
   <sub>No more manual copy-paste. No more messy repos. Just solve and sync.</sub>
 </p>
 
@@ -33,10 +33,10 @@ Most LeetCode-GitHub sync tools just dump your code. **This one thinks for you.*
 
 ### 🧠 What it does
 - ✅ Pushes your **submitted code** to GitHub
-- ✅ Generates an **AI-optimized solution** via Groq LLM
+- ✅ Generates an **AI-optimized solution** via `openai/gpt-oss-120b`
 - ✅ Creates a full **approach breakdown** in Markdown
 - ✅ Organizes by **difficulty** → clean folder structure
-- ✅ One-click sync — **manual only, no spam**
+- ✅ Supports two push modes: **review-first** and **instant push**
 
 </td>
 <td width="50%">
@@ -129,7 +129,7 @@ class Solution {
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/algopush.git
+git clone https://github.com/vinnu112p/AlgoPush.git
 cd algopush
 ```
 
@@ -145,7 +145,7 @@ cd algopush
 
 ### 3. Configure the Extension
 
-Click the ⚡ extension icon → fill in your settings:
+Click the ⚡ extension icon → open the **Configure** tab and fill in your settings:
 
 | Setting | Where to get it |
 |---|---|
@@ -185,7 +185,7 @@ Click **💾 Save Settings** → **🔍 Test Connection** to verify everything w
 3. Click **Create API Key**
 4. Copy the `gsk_...` key
 
-> 💡 **Model used:** `llama-3.3-70b-versatile` — free tier, blazing fast, excellent for code tasks
+> 💡 **Model used:** `openai/gpt-oss-120b` — tuned for strong code reasoning and optimization
 
 </details>
 
@@ -199,16 +199,16 @@ Click **💾 Save Settings** → **🔍 Test Connection** to verify everything w
 
 | Button | What it does |
 |---|---|
-| 🧠 **Get Approach** | Opens an AI-generated approach panel (thinking, no code) |
-| 📤 **Push to GitHub** | Pushes your code + AI analysis to your GitHub repo |
-| ⚡ **Floating Sync Button** | Quick one-click sync (bottom-right corner) |
+| 🧠 **Get Approach** | Opens approach analysis only (no push action) |
+| 📤 **Push to GitHub** | Opens review panel first; pushes only after confirmation |
+| ⚡ **Floating Sync Button** | Instant push to GitHub (no side panel) |
 
 ### Workflow
 
 ```
 1. Open any LeetCode problem
 2. Write your solution in the editor
-3. Click ⚡ Sync  or  📤 Push to GitHub
+3. Pick one: 🧠 approach-only, 📤 review-first push, or ⚡ instant push
 4. Done! Check your GitHub repo ✨
 ```
 
@@ -227,7 +227,7 @@ Click **🧠 Get Approach** to see an AI-generated analysis:
 | ⚠️ **Edge Cases** | Tricky inputs to watch for |
 | 🔗 **Related Patterns** | Connected problems and techniques |
 
-> **No code shown** — by design. Understand the thinking, then implement yourself.
+> This panel is intentionally explanation-focused. In review-first push flow, the same panel includes a push confirmation button.
 
 ---
 
@@ -236,11 +236,11 @@ Click **🧠 Get Approach** to see an AI-generated analysis:
 ```
 algopush/
 ├── manifest.json       ← Chrome Extension config (Manifest V3)
-├── background.js       ← Service worker: GitHub API + Groq LLM calls
+├── background.js       ← Service worker: GitHub API + AI model calls
 ├── content.js          ← Injected into LeetCode: UI buttons + sync logic
 ├── content.css         ← Styles for injected UI elements
 ├── pageScript.js       ← Injected into page world: Monaco editor access
-├── popup.html          ← Extension popup (settings, sync, stats)
+├── popup.html          ← Extension popup (Configure + Help tabs)
 ├── popup.js            ← Popup logic and settings management
 ├── icons/
 │   ├── icon16.png
@@ -264,7 +264,7 @@ LeetCode uses **Monaco Editor** (same engine as VS Code). The extension reads yo
 │  → Sends to background.js for API calls                   │
 ├───────────────────────────────────────────────────────────┤
 │  SERVICE WORKER (background.js)                           │
-│  → Calls Groq API (approach + optimized code)             │
+│  → Calls Groq OpenAI-compatible API (approach + optimized code) │
 │  → Pushes files to GitHub via REST API                    │
 └───────────────────────────────────────────────────────────┘
 ```
@@ -285,7 +285,7 @@ LeetCode uses **Monaco Editor** (same engine as VS Code). The extension reads yo
 <details>
 <summary><b>"GitHub push failed: token not configured"</b></summary>
 
-- Open the extension popup → Settings tab
+- Open the extension popup → Configure tab
 - Fill in your GitHub token, username, and repo name
 - Click **Save Settings**
 
@@ -328,7 +328,7 @@ Contributions are welcome! This is an **open source** project — anyone can use
 
 ```bash
 # Fork the repo, then:
-git clone https://github.com/YOUR_USERNAME/algopush.git
+git clone https://github.com/vinnu112p/AlgoPush.git
 cd algopush
 
 # Make your changes, test by loading unpacked in Chrome
@@ -375,6 +375,6 @@ copies of the Software.
 
 <br />
 
-[Report Bug](https://github.com/YOUR_USERNAME/algopush/issues) · [Request Feature](https://github.com/YOUR_USERNAME/algopush/issues) · [Contribute](https://github.com/YOUR_USERNAME/algopush/pulls)
+[Report Bug](https://github.com/vinnu112p/AlgoPush/issues) · [Request Feature](https://github.com/vinnu112p/AlgoPush/issues) · [Contribute](https://github.com/vinnu112p/AlgoPush/pulls)
 
 </div>
